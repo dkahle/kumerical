@@ -8,17 +8,17 @@
 #' @param b upper bound
 #' @param tol tolerance, defaults to 10*.Machine$double.eps
 #' @param maxit maximum number of iterations
+#' @param bisections number or bisection steps for fast unibisect
 #' @return a list
-#' @name bisection
+#' @name unibisect
 #' @examples
-#'
-#' simple_unibisect(function(x) x^2 - 2, 0, 2)
-#' unibisect(function(x) x^2 - 2, 0, 2)
-#' fast_unibisect(function(x) x^2 - 2, 0, 2)
-#'
 #'
 #' f <- function(x) x^2 - 2
 #' a <- 0; b <- 2
+#' unibisect(f, a, b)
+#' simple_unibisect(f, a, b)
+#' fast_unibisect(f, a, b)
+#'
 #' (out <- unibisect(f, a, b))
 #'
 #' curve(f(x), col = "red", from = a, to = b)
@@ -68,7 +68,7 @@
 
 
 #' @export
-#' @rdname bisection
+#' @rdname unibisect
 unibisect <- function(f, a, b, tol = 10*.Machine$double.eps, maxit = 100L) {
 
   # initialize x and fx
@@ -139,7 +139,7 @@ unibisect <- function(f, a, b, tol = 10*.Machine$double.eps, maxit = 100L) {
 
 
 #' @export
-#' @rdname bisection
+#' @rdname unibisect
 fast_unibisect <- function(f, a, b, tol = 10*.Machine$double.eps, bisections = 8L, maxit = 100L) {
 
   if(bisections >= maxit) return(unibisect(f, a, b, tol, maxit))
@@ -247,7 +247,7 @@ fast_unibisect <- function(f, a, b, tol = 10*.Machine$double.eps, bisections = 8
 
 
 #' @export
-#' @rdname bisection
+#' @rdname unibisect
 simple_unibisect <- function(f, a, b, tol = 10*.Machine$double.eps, maxit = 100L) {
 
   # check endpoints and return early if root there

@@ -8,15 +8,14 @@
 #' @param tol tolerance, defaults to 10*.Machine$double.eps
 #' @param maxit maximum number of iterations
 #' @return a list
-#' @export
+#' @name secant
 #' @examples
-#'
-#'
-#' unisecant(function(x) x^2 - 2, 0, 1)
-#'
 #'
 #' f  <- function(x) x^2 - 2
 #' x0 <- 0; x1 <- 1
+#' unisecant(f, x0, x1)
+#' simple_unisecant(f, x0, x1)
+#'
 #' (out <- unisecant(f, x0, x1))
 #'
 #' curve(f(x), col = "red", from = .9, to = 2.1)
@@ -102,7 +101,10 @@
 #'   Sys.sleep(.5)
 #' }
 #'
-#'
+
+
+#' @rdname secant
+#' @export
 unisecant <- function(f, x0, x1, tol = 10*.Machine$double.eps, maxit = 100L) {
 
   # initialize x and fx
@@ -113,7 +115,7 @@ unisecant <- function(f, x0, x1, tol = 10*.Machine$double.eps, maxit = 100L) {
   fx[1]  <- f(x[1])
   if(abs(fx[1]) <= tol) {
     return(list(
-      root = x[1], val = fx[1],
+      root = x[1], f.root = fx[1],
       evals = data_frame(x = x[1], fx = fx[1]),
       n_evals = 1
     ))
@@ -123,7 +125,7 @@ unisecant <- function(f, x0, x1, tol = 10*.Machine$double.eps, maxit = 100L) {
   fx[2]  <- f(x[2])
   if(abs(fx[2]) <= tol) {
     return(list(
-      root = x[2], val = fx[2],
+      root = x[2], f.root = fx[2],
       evals = data_frame(x = x[1:2], fx = fx[1:2]),
       n_evals = 2
     ))
@@ -131,7 +133,7 @@ unisecant <- function(f, x0, x1, tol = 10*.Machine$double.eps, maxit = 100L) {
 
   # loop
   for(k in 3:maxit) {
-    x[k]  <- x[k-1] - fx[k-1] / ((fx[k-1]-fx[k-2])/(x[k-1]-x[k-2]))
+    x[k]  <- x[k-1] - fx[k-1] * (x[k-1]-x[k-2])/(fx[k-1]-fx[k-2])
     fx[k] <- f(x[k])
     n_evals <- k
     if(abs(fx[k]) <= tol) break
@@ -143,4 +145,41 @@ unisecant <- function(f, x0, x1, tol = 10*.Machine$double.eps, maxit = 100L) {
     evals = data_frame(x = x[1:n_evals], fx = fx[1:n_evals]),
     n_evals = n_evals
   )
+}
+
+
+
+
+
+
+
+
+
+
+#' @rdname secant
+#' @export
+simple_unisecant <- function(f, x0, x1, tol = 10*.Machine$double.eps, maxit = 100L) {
+
+  # initialize x and fx
+  x <- fx <- numeric(maxit)
+
+  # check endpoint and return early if root there
+  x[1]  <- x0;
+  fx[1] <- f(x[1])
+  if(abs(fx[1]) <= tol) return(list(root = x[1], f.root = fx[1]))
+
+  x[2]  <- x1;
+  fx[2] <- f(x[2])
+  if(abs(fx[2]) <= tol) return(list(root = x[2], f.root = fx[2]))
+
+  # loop
+  for(k in 3:maxit) {
+    x[k]  <- x[k-1] - fx[k-1] * (x[k-1]-x[k-2])/(fx[k-1]-fx[k-2])
+    fx[k] <- f(x[k])
+    n_evals <- k
+    if(abs(fx[k]) <= tol) break
+  }
+
+  # return
+  list(root = x[n_evals], f.root = fx[n_evals])
 }

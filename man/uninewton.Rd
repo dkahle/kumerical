@@ -2,9 +2,12 @@
 % Please edit documentation in R/uninewton.R
 \name{uninewton}
 \alias{uninewton}
+\alias{simple_uninewton}
 \title{Univariate Newton method}
 \usage{
 uninewton(f, df, x0, tol = 10 * .Machine$double.eps, maxit = 100L)
+
+simple_uninewton(f, df, x0, tol = 10 * .Machine$double.eps, maxit = 100L)
 }
 \arguments{
 \item{f}{function}
@@ -25,13 +28,12 @@ Find the root of a function using Newton's method.
 }
 \examples{
 
-
-uninewton(function(x) x^2 - 2, function(x) 2*x, 2)
-
-
 f  <- function(x) x^2 - 2
 df <- function(x) 2*x
 x0 <- 2
+uninewton(f, df, x0)
+simple_uninewton(f, df, x0)
+
 (out <- uninewton(f, df, x0))
 
 curve(f(x), col = "red", from = .9, to = 2.1)
@@ -79,7 +81,7 @@ df <- function(x) 3*x^2 - 3.02*x + .6924
 x0 <- .40
 (out <- uninewton(f, df, x0))
 
-curve(f(x), col = "red", from = .15, to = .85)
+curve(f(x), col = "red", from = .30, to = .70)
 with(out$evals, points(x, fx))
 for(k in 1:out$n_evals) {
   with(out$evals, abline(a = fx[k] - dfx[k]*x[k], b = dfx[k], col = "blue"))
