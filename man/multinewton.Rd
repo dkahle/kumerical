@@ -51,6 +51,19 @@ multinewton(f, df, x0)
 
 
 
+
+jacobian <- function(ps, varorder = vars(ps)) {
+  list_of_mpolyLists <- lapply(ps, deriv, var = varorder)
+  list_of_gradient_functions <- lapply(
+    list_of_mpolyLists, as.function,
+    varorder = varorder, silent = TRUE
+  )
+  J <- function(.) lapply(list_of_gradient_functions, function(f) f(.))
+  function(v) do.call(rbind, J(v))
+}
+
+
+
 # intersection of the parabola y = x^2 and circle x^2 + y^2 = 1
 # algebraically, this is
 # y + y^2 = 1 => y^2 + y - 1 = 0 =>
@@ -67,13 +80,7 @@ theoretical_solns <- list(
 ps <- mp(c("y - x^2", "x^2 + y^2 - 1"))
 f <- as.function(ps, varorder = c("x", "y"))
 lapply(theoretical_solns, f)
-df <- function(v) {
-  x <- v[1]; y <- v[2]
-  matrix(c(
-    -2*x,   1,
-     2*x, 2*y
-  ), nrow = 2, byrow = TRUE)
-}
+df <- jacobian(ps, varorder = c("x", "y"))
 x0 <- c(2, 2)
 f(x0)
 df(x0)
@@ -95,14 +102,7 @@ str(out$evals, 1)
 # x^2 + y^2 - z^2 = 0
 ps <- mp(c("x + y + z", "x^2 - y^2 + z^2 - 9", "x^2 + y^2 - z^2"))
 f <- as.function(ps, varorder = c("x", "y", "z"))
-df <- function(v) {
-  x <- v[1]; y <- v[2]; z <- v[3]
-  matrix(c(
-      1,    1,    1,
-    2*x, -2*y,  2*z,
-    2*x,  2*y, -2*z
-  ), nrow = 3, byrow = TRUE)
-}
+df <- jacobian(ps, varorder = c("x", "y", "z"))
 x0 <- c(2, 2, 2)
 f(x0)
 df(x0)
